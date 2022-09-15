@@ -1,8 +1,11 @@
 import static org.junit.Assert.assertTrue;
+import java.util.*;
+import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Scanner;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,6 +20,7 @@ import org.junit.jupiter.api.Test;
 class JUnitBlobTest {
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
+		//create test folder, objects folder in test, three txt files
 		File foldert = new File("test");
 		foldert.mkdirs();
 		File foldero = new File("test/objects");
@@ -34,48 +38,84 @@ class JUnitBlobTest {
 
 	@AfterAll
 	static void tearDownAfterClass() throws Exception {
-//		File f = new File("test/txt.txt");
-//		f.delete();
-//		File f1 = new File("test/txt1.txt");
-//		f1.delete();
-//		File f2 = new File("test/txt2.txt");
-//		f2.delete();
-//		File index = new File("test/index.txt");
-//		index.delete();
-//		File folder = new File("test/objects");
-//		folder.delete();
+		//deleting all txt files
+		File f = new File("test/txt.txt");
+		f.delete();
+		File f1 = new File("test/txt1.txt");
+		f1.delete();
+		File f2 = new File("test/txt2.txt");
+		f2.delete();
+		File index = new File("test/index.txt");
+		index.delete();
+		
+		//deleting objects folder w/ all contents  inside
+		File folder = new File("test/objects");
+		String[]entries = folder.list();
+		for(String s: entries){
+		    File currentFile = new File(folder.getPath(),s);
+		    currentFile.delete();
+		}
+		folder.delete();
+		
+		//delete test folder
+		File test = new File("test");
+		test.delete();
 	}
 
 	@Test
 	void blobFileContent() {
-//		Blob b = new Blob("txt.txt");
-//		File f = new File("test/objects/94e66df8cd09d410c62d9e0dc59d3a884e458e05");
-//		assertTrue(f.exists());//checks if file named the sha1 of some content exists in objects
+		Blob b = new Blob("txt.txt");
+		File f = new File("test/objects/94e66df8cd09d410c62d9e0dc59d3a884e458e05");
+		assertTrue(f.exists());//checks if file named the sha1 of some content exists in objects
 	}
 	
 	@Test
 	void checkIndexAndObjects() throws IOException {
+		
+		
+		//initiate, add to index
 		Index index = new Index();
-		index.openFile();//maybe write this into the index.java class initiator/add method
+		index.openFile();//maybe write this into the index.java class initiator/add method - need it to initialize print writer
 		index.init();
+		
+		File ind = new File("test/index.txt");
+		assertTrue(ind.exists());
+		//Create scanner for index.txt 
+		File f = new File("test/index.txt");
+		Scanner s = new Scanner(f);
 		index.add("txt1.txt");
 		index.add("txt.txt");
 		index.add("txt2.txt");
-		assertTrue(new File("94e66df8cd09d410c62d9e0dc59d3a884e458e05.txt").exists());
-		assertTrue(new File("e2a34d27ec895d3921f201a107386c9fc67b9885.txt").exists());
-		assertTrue(new File("79eec2bd89a58604dc3f0537108b07200e894d79.txt").exists());
+		
+		//Check of blobs exist in objects folder 
+		assertTrue(new File("test/objects/94e66df8cd09d410c62d9e0dc59d3a884e458e05").exists());
+		assertTrue(new File("test/objects/e2a34d27ec895d3921f201a107386c9fc67b9885").exists());
+		assertTrue(new File("test/objects/79eec2bd89a58604dc3f0537108b07200e894d7").exists());
+		//check updated index first line and second line 
+		
+
+		assertTrue(s.nextLine().equals("txt1.txt : e2a34d27ec895d3921f201a107386c9fc67b9885"));
+		assertTrue(s.nextLine().equals("txt.txt : 94e66df8cd09d410c62d9e0dc59d3a884e458e05"));
+
+
 //		index.closeFile();
+		
+		//Remove, check remove
 		index.remove("txt.txt");
 		index.remove("txt1.txt");
 		index.remove("txt2.txt");
-		assertTrue(!new File("94e66df8cd09d410c62d9e0dc59d3a884e458e05.txt").exists());
-		assertTrue(!new File("e2a34d27ec895d3921f201a107386c9fc67b9885.txt").exists());
-		assertTrue(!new File("79eec2bd89a58604dc3f0537108b07200e894d79.txt").exists());
+		assertFalse(new File("test/objects/94e66df8cd09d410c62d9e0dc59d3a884e458e05").exists());
+		assertFalse(new File("test/objects/e2a34d27ec895d3921f201a107386c9fc67b9885").exists());
+		assertFalse(new File("test/objects/79eec2bd89a58604dc3f0537108b07200e894d79").exists());
+		
+		//Check removal from index.txt
+		assertFalse(s.hasNext());//if removed all, would be empty
+		
 	}
 	
 	@Test
 	void test() {
-		System.out.println("hello2");
+		
 	}
 
 }
