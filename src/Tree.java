@@ -10,18 +10,22 @@ public class Tree {
 	private String sha1Array = ""; 
 	
 	public Tree (ArrayList<String> strArr) throws IOException {
-		this.fullArray = strArr;
-		
-		for (String s : strArr) {
+		this.fullArray = strArr; //save array into fullArray
+		for (String s : fullArray) {//create string with all lines in array
 			sha1Array+=s + "\n";
 		}
-		
 		sha1Array = getSha1(sha1Array.trim());//turn list of blobs/trees -> sha1 for name
 		
+		writeList();
+	}
+	
+	private void writeList() throws IOException {
 		File f = new File("test/objects/" + sha1Array);
 		FileWriter writer = new FileWriter (f);
-		
-		
+		for (String s : fullArray) {
+			writer.append(s + "\n");
+		}
+		writer.close();
 	}
 	
 	
